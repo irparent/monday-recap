@@ -6,6 +6,11 @@ type InFile = { name: string; kind: "csv" | "image"; media?: string; data: strin
 
 export default function Home() {
   const [files, setFiles] = useState<InFile[]>([]);
+  const [note, setNote] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
+  const [copied, setCopied] = useState(false);
   const picker = useRef<HTMLInputElement>(null);
 
   async function addFiles(list: FileList | null) {
@@ -19,6 +24,34 @@ export default function Home() {
       }
     }
     setFiles((prev) => [...prev, ...added]);
+  }
+
+  async function generate() {
+    setBusy(true);
+    setError("");
+    setMessage("");
+    setCopied(false);
+    try {
+      const res = await fetch("/api/recap", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ files, note }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Something went wrong.");
+      setMessage(json.message as string);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Something went wrong.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function copyMessage() {
+    if (!message) return;
+    await navigator.clipboard.writeText(message);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
   }
 
   return (
@@ -59,11 +92,27 @@ export default function Home() {
         </div>
       )}
 
-      <button className="go" disabled>
-        Write the Monday message
+      <textarea
+        placeholder="Anything else Mark should know this week? (optional)"
+        value={note}
+        onChange={(e) => setNote(e.target.value)}
+      />
+
+      <button className="go" onClick={generate} disabled={busy || files.length === 0}>
+        {busy ? "Reading the week…" : "Write the Monday message"}
       </button>
 
-      <p className="footer">Model call not wired up yet.</p>
+      {error && <p className="error">{error}</p>}
+
+      {message && (
+        <div className="card" style={{ marginTop: 24 }}>
+          <h2>Message to Mark</h2>
+          <div className="message">{message}</div>
+          <button className="copy" onClick={copyMessage}>
+            {copied ? "✓ Copied" : "Copy message"}
+          </button>
+        </div>
+      )}
     </main>
   );
 }
