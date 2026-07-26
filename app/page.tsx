@@ -3,10 +3,11 @@
 import { useRef, useState } from "react";
 
 type InFile = { name: string; kind: "csv" | "image"; media?: string; data: string };
+type Sourced = { text: string; source: string };
 type Recap = {
   summary_message: string;
-  wins: string[];
-  concerns: string[];
+  wins: Sourced[];
+  concerns: Sourced[];
   missing: string[];
   post_ideas: string[];
 };
@@ -136,7 +137,9 @@ export default function Home() {
             <h2>Wins</h2>
             <ul>
               {recap.wins.map((w, i) => (
-                <li key={i}>{w}</li>
+                <li key={i}>
+                  {w.text} <span className="src">{w.source}</span>
+                </li>
               ))}
             </ul>
           </div>
@@ -146,7 +149,9 @@ export default function Home() {
               <h2>Watch</h2>
               <ul>
                 {recap.concerns.map((c, i) => (
-                  <li key={i}>{c}</li>
+                  <li key={i}>
+                    {c.text} <span className="src">{c.source}</span>
+                  </li>
                 ))}
               </ul>
             </div>

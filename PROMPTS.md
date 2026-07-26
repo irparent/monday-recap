@@ -1,6 +1,11 @@
-# Prompts — version history
+# Prompts — full version history
 
-Keeping every version of the prompt here, including what actually happened when it ran.
+The agent's contract is the real product here, so this file shows every version of it,
+including the one that didn't work, with what actually happened when it ran.
+
+- **V1 — unconstrained summary** (failed honestly)
+- **V2 — the evidence contract** (structured output + the missing list)
+- **V3 — source-aware output** (every number carries its source; no inferred priors)
 
 ## V1 — unconstrained summary (the naive start)
 
@@ -26,7 +31,7 @@ It sounded right and was quietly wrong in three ways:
    missing week of email data silently became confidence.
 
 Its arithmetic was correct and it even hedged one metric on its own — but instincts
-aren't a contract. The next version makes them one.
+aren't a contract. v2 makes them one.
 
 ## V2 — the evidence contract
 
@@ -81,3 +86,26 @@ posts rather than generic advice.
 
 **Known edge, kept honestly:** v2 still says the email "did well" — an evaluative word
 with a quoted number and a visible no-comparison flag, but no stated baseline.
+
+## V3 — source-aware output (shipped, in `lib/agent.ts`)
+
+Auditing V2's full output against its own contract turned up a subtler leak: when the only
+prior-week evidence for a metric was a rounded percentage on a dashboard screenshot, the
+agent could still present an inferred absolute prior ("up 79%, from 4,180") as if it had
+read that number somewhere. The headline hallucination was fixed; the *audit of every
+number in the output* wasn't complete.
+
+**What changed and why:**
+
+1. **Rule 6 — no inferred priors.** If the only prior-week evidence is a rounded dashboard
+   %, the agent reports the change as dashboard-reported ("the dashboard shows reach up
+   79%") and never states a prior-week number for it. Absolute priors require rows it can
+   actually sum.
+2. **Rule 7 — every number carries its source.** `wins` and `concerns` items became
+   `{ text, source }`, and the page renders the source next to each claim — "7,481" is
+   visibly traceable to the Instagram daily export.
+3. **Shorter message.** The owner note tightened from 120–180 words to 90–130 — it's a
+   text to a busy owner, not a report.
+
+The lesson under all three versions: the fix is never "prompt harder" — it's auditing the
+whole output against the contract, not just the number that first went wrong.

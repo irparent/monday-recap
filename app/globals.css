@@ -76,3 +76,15 @@ li { margin: 4px 0; }
   cursor: pointer;
 }
 .footer { color: #97a0ab; font-size: 12px; margin-top: 32px; }
+.src {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 7px;
+  border-radius: 9px;
+  background: #eef1f5;
+  color: #5c6470;
+  font-size: 11px;
+  font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  white-space: nowrap;
+  vertical-align: middle;
+}

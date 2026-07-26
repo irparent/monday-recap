@@ -1,6 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest, NextResponse } from "next/server";
-import { SYSTEM_PROMPT } from "@/lib/prompt";
+import { SYSTEM_PROMPT } from "@/lib/agent";
 
 export const maxDuration = 60;
 
@@ -56,9 +56,24 @@ export async function POST(req: NextRequest) {
       .filter((b) => b.type === "text")
       .map((b) => ("text" in b ? b.text : ""))
       .join("\n");
-    return NextResponse.json({ message: text });
+    const parsed = extractJson(text);
+    if (!parsed) {
+      return NextResponse.json({ error: "Model returned unparseable output.", raw: text }, { status: 502 });
+    }
+    return NextResponse.json(parsed);
   } catch (e) {
     const detail = e instanceof Error ? e.message : "unknown error";
     return NextResponse.json({ error: `Claude call failed: ${detail}` }, { status: 502 });
+  }
+}
+
+function extractJson(t: string): unknown | null {
+  const start = t.indexOf("{");
+  const end = t.lastIndexOf("}");
+  if (start === -1 || end <= start) return null;
+  try {
+    return JSON.parse(t.slice(start, end + 1));
+  } catch {
+    return null;
   }
 }
