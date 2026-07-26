@@ -3,13 +3,20 @@
 import { useRef, useState } from "react";
 
 type InFile = { name: string; kind: "csv" | "image"; media?: string; data: string };
+type Recap = {
+  summary_message: string;
+  wins: string[];
+  concerns: string[];
+  missing: string[];
+  post_ideas: string[];
+};
 
 export default function Home() {
   const [files, setFiles] = useState<InFile[]>([]);
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const [message, setMessage] = useState("");
+  const [recap, setRecap] = useState<Recap | null>(null);
   const [copied, setCopied] = useState(false);
   const picker = useRef<HTMLInputElement>(null);
 
@@ -29,7 +36,7 @@ export default function Home() {
   async function generate() {
     setBusy(true);
     setError("");
-    setMessage("");
+    setRecap(null);
     setCopied(false);
     try {
       const res = await fetch("/api/recap", {
@@ -39,7 +46,7 @@ export default function Home() {
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || "Something went wrong.");
-      setMessage(json.message as string);
+      setRecap(json as Recap);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Something went wrong.");
     } finally {
@@ -48,8 +55,8 @@ export default function Home() {
   }
 
   async function copyMessage() {
-    if (!message) return;
-    await navigator.clipboard.writeText(message);
+    if (!recap) return;
+    await navigator.clipboard.writeText(recap.summary_message);
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
   }
@@ -104,15 +111,61 @@ export default function Home() {
 
       {error && <p className="error">{error}</p>}
 
-      {message && (
-        <div className="card" style={{ marginTop: 24 }}>
-          <h2>Message to Mark</h2>
-          <div className="message">{message}</div>
-          <button className="copy" onClick={copyMessage}>
-            {copied ? "✓ Copied" : "Copy message"}
-          </button>
+      {recap && (
+        <div style={{ marginTop: 24 }}>
+          <div className="card">
+            <h2>Message to Mark</h2>
+            <div className="message">{recap.summary_message}</div>
+            <button className="copy" onClick={copyMessage}>
+              {copied ? "✓ Copied" : "Copy message"}
+            </button>
+          </div>
+
+          {recap.missing.length > 0 && (
+            <div className="card missing">
+              <h2>Missing / couldn&apos;t verify</h2>
+              <ul>
+                {recap.missing.map((m, i) => (
+                  <li key={i}>{m}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <div className="card">
+            <h2>Wins</h2>
+            <ul>
+              {recap.wins.map((w, i) => (
+                <li key={i}>{w}</li>
+              ))}
+            </ul>
+          </div>
+
+          {recap.concerns.length > 0 && (
+            <div className="card">
+              <h2>Watch</h2>
+              <ul>
+                {recap.concerns.map((c, i) => (
+                  <li key={i}>{c}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <div className="card">
+            <h2>Post ideas this week</h2>
+            <ul>
+              {recap.post_ideas.map((p, i) => (
+                <li key={i}>{p}</li>
+              ))}
+            </ul>
+          </div>
         </div>
       )}
+
+      <p className="footer">
+        Numbers come only from what you drop in. Anything the tool can&apos;t find, it says so instead of guessing.
+      </p>
     </main>
   );
 }
