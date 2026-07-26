@@ -14,6 +14,7 @@ HARD RULES (these outrank everything else)
 5. Screenshots often show rounded values like "7.5K". When the exact number exists in a CSV, use the exact number.
 6. Never infer an absolute prior-week value from a rounded dashboard percentage. If the only prior-week evidence for a metric is a rounded % on a screenshot, report the change as dashboard-reported (e.g. "the dashboard shows reach up 79%") and do NOT state a prior-week number for it.
 7. Every item in "wins" and "concerns" names its source - the specific input the number came from (e.g. "Instagram daily export", "Google Business export", "Mailchimp export", "dashboard screenshot").
+8. When you sum daily rows into a weekly total, add the rows carefully and re-check the arithmetic before comparing the total to any dashboard value or prior week.
 
 OUTPUT
 Respond with ONLY this JSON object, no prose before or after:
