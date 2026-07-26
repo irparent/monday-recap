@@ -76,6 +76,7 @@ li { margin: 4px 0; }
   cursor: pointer;
 }
 .footer { color: #97a0ab; font-size: 12px; margin-top: 32px; }
+.footer a { color: #5c6470; }
 .src {
   display: inline-block;
   margin-left: 6px;

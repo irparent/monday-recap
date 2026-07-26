@@ -15,6 +15,17 @@ couldn't find goes in a **Missing / couldn't verify** panel — it never guesses
 invents a week-over-week comparison when the prior week isn't there, and it never
 back-calculates a "prior week" from a rounded dashboard percentage.
 
+## Try it yourself
+
+The tool is live at [monday-recap.vercel.app](https://monday-recap.vercel.app), and
+[`sample-data/`](sample-data/) holds a full realistic week: five CSV exports and two
+dashboard screenshots. Download them, drop them all in, click once.
+
+For the stress test: leave out `instagram-daily-jul6-12.csv` (last week's Instagram
+export) and run it again — the agent keeps this week's exact numbers, reports the
+comparison only as what the dashboard shows, refuses to invent the prior week, and the
+Missing panel asks for the export it needs.
+
 ## Run it
 
 ```bash
@@ -35,4 +46,5 @@ One page, one API route, one agent.
 - `app/api/recap/route.ts` — sends CSVs as text and screenshots as images to the agent, expects strict JSON back
 - `lib/agent.ts` — the agent's contract (the actual product; version history in `PROMPTS.md`)
 
-The app stays deliberately thin. The evidence contract is the product.
+The app stays deliberately thin — a front door. The agent in the cloud turns what she
+drops in into what she sends, and the evidence contract governs every number on the way.
