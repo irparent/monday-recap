@@ -24,3 +24,25 @@ Respond with ONLY this JSON object, no prose before or after:
   "missing": ["what's absent and what it blocks"],
   "post_ideas": ["three ideas grounded in what actually performed this week, doable with a phone"]
 }`;
+
+// The same shape, enforced at the API level (structured outputs) — the page never
+// depends on the model choosing to follow instructions.
+const sourced = {
+  type: "object",
+  properties: { text: { type: "string" }, source: { type: "string" } },
+  required: ["text", "source"],
+  additionalProperties: false,
+} as const;
+
+export const OUTPUT_SCHEMA = {
+  type: "object",
+  properties: {
+    summary_message: { type: "string" },
+    wins: { type: "array", items: sourced },
+    concerns: { type: "array", items: sourced },
+    missing: { type: "array", items: { type: "string" } },
+    post_ideas: { type: "array", items: { type: "string" } },
+  },
+  required: ["summary_message", "wins", "concerns", "missing", "post_ideas"],
+  additionalProperties: false,
+} as const;

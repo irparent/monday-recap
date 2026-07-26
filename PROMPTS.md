@@ -109,3 +109,8 @@ number in the output* wasn't complete.
 
 The lesson under all three versions: the fix is never "prompt harder" — it's auditing the
 whole output against the contract, not just the number that first went wrong.
+
+**Hardening note (found in live integration):** run-to-run, the model would occasionally
+answer in prose instead of the JSON shape — instructions alone weren't a guarantee. The
+same schema the contract describes is now also enforced at the API level (structured
+outputs on the Messages API), so the page never depends on the model choosing to comply.

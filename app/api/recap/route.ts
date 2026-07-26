@@ -1,6 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest, NextResponse } from "next/server";
-import { SYSTEM_PROMPT } from "@/lib/agent";
+import { OUTPUT_SCHEMA, SYSTEM_PROMPT } from "@/lib/agent";
 
 export const maxDuration = 60;
 
@@ -48,9 +48,10 @@ export async function POST(req: NextRequest) {
   try {
     const msg = await client.messages.create({
       model: "claude-sonnet-5",
-      max_tokens: 2000,
+      max_tokens: 3000,
       system: SYSTEM_PROMPT,
       messages: [{ role: "user", content }],
+      output_config: { format: { type: "json_schema", schema: OUTPUT_SCHEMA } },
     });
     const text = msg.content
       .filter((b) => b.type === "text")
