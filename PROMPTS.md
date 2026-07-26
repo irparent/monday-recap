@@ -3,9 +3,31 @@
 The agent's contract is the real product here, so this file shows every version of it,
 including the one that didn't work, with what actually happened when it ran.
 
+- **§0 — the kickoff prompt** (the context the build started from)
 - **V1 — unconstrained summary** (failed honestly)
 - **V2 — the evidence contract** (structured output + the missing list)
 - **V3 — source-aware output** (every number carries its source; no inferred priors)
+
+## §0 — the kickoff prompt (how the build started)
+
+A build starts with context, not code. This is what went into the model's window before a
+single file existed:
+
+```
+Here's the workflow we're transforming:
+Every Monday, Andrea (marketing, local gym) pulls numbers from Instagram, Google
+Business, and Mailchimp, compares to last week from memory, and writes the owner a
+short update. 45-60 min.
+
+The goal:
+The smallest web tool that kills the synthesis hour. She drops in the exports +
+screenshots she already has; it writes the message she already writes.
+
+Requirements + constraints:
+single page - one API route - Claude with vision (her inputs are screenshots) - owner
+message + wins/concerns + a missing list for anything unverifiable - no database - no
+accounts - zero setup for Andrea - API key server-side only
+```
 
 ## V1 — unconstrained summary (the naive start)
 
