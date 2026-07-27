@@ -45,7 +45,7 @@ One page, one API route, one agent.
 
 - `app/page.tsx` — drop zone, file chips, results
 - `app/api/recap/route.ts` — sends CSVs as text and screenshots as images to the agent, expects strict JSON back
-- `lib/agent.ts` — the agent's contract (the actual product; version history in `PROMPTS.md`)
+- `lib/agent.ts` — the agent's contract (the actual product; the full prompt library, every version included, in `PROMPTS.md`)
 
 The app stays deliberately thin — a front door. The agent in the cloud turns what she
 drops in into what she sends, and the evidence contract governs every number on the way.
