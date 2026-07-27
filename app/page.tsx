@@ -170,9 +170,7 @@ export default function Home() {
 
       <p className="footer">
         Numbers come only from what you drop in. Anything the tool can&apos;t find, it says so instead of guessing.{" "}
-        <a href="https://github.com/irparent/monday-recap/tree/main/sample-data" target="_blank" rel="noreferrer">
-          Sample data to try it →
-        </a>
+        <a href="/sample-data.zip">Sample data to try it →</a>
       </p>
     </main>
   );

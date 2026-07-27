@@ -15,18 +15,19 @@ couldn't find goes in a **Missing / couldn't verify** panel — it never guesses
 invents a week-over-week comparison when the prior week isn't there, and it never
 back-calculates a "prior week" from a rounded dashboard percentage.
 
-## Try it yourself
+## Try the live tool (no setup)
 
-The tool is live at [monday-recap.vercel.app](https://monday-recap.vercel.app), and
-[`sample-data/`](sample-data/) holds a full realistic week: five CSV exports and two
-dashboard screenshots. Download them, drop them all in, click once.
+The tool is live at [monday-recap.vercel.app](https://monday-recap.vercel.app) — it
+serves its own sample data ("Sample data to try it" in the page footer, or
+[`sample-data/`](sample-data/) in this repo holds the same files): a full realistic
+week of five CSV exports and two dashboard screenshots. Drop them all in, click once.
 
 For the stress test: leave out `instagram-daily-jul6-12.csv` (last week's Instagram
 export) and run it again — the agent keeps this week's exact numbers, reports the
 comparison only as what the dashboard shows, refuses to invent the prior week, and the
 Missing panel asks for the export it needs.
 
-## Run it
+## Run this repo locally
 
 ```bash
 npm install
@@ -34,7 +35,7 @@ cp .env.example .env   # add your Anthropic API key
 npm run dev            # http://localhost:3000
 ```
 
-## Deploy
+## Deploy your own
 
 Push to GitHub → import in Vercel → set `ANTHROPIC_API_KEY` in project env vars. Done.
 
