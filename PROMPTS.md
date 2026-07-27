@@ -156,7 +156,7 @@ block itself carries the same caution.
 thinking spiked and consumed the output budget; structured outputs kept the JSON *valid*,
 so a half-written message with empty sections could render as if it were the answer. Fix:
 a larger budget, plus a completeness gate in the route — it checks the stop reason and the
-shape's actual content, retries once quietly, and returns an honest error instead of ever
+shape's actual content, retries quietly while time allows, and returns an honest error instead of ever
 serving a partial recap. The page also stopped rendering empty sections.
 
 Two smaller tightenings from the same pass: "missing" is now strictly for absent or
