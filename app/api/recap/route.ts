@@ -123,8 +123,10 @@ export async function POST(req: NextRequest) {
   const client = new Anthropic({ apiKey: key });
   try {
     // Thinking occasionally spikes and eats the budget; the budget is sized so that never
-    // starves the answer, and an incomplete answer gets exactly one quiet retry.
-    for (let attempt = 1; attempt <= 2; attempt++) {
+    // starves the answer, and an incomplete answer gets quiet retries while time allows
+    // (the function has 60s - never start a retry that could blow through it).
+    const t0 = Date.now();
+    for (let attempt = 1; attempt <= 3; attempt++) {
       const msg = await client.messages.create({
         model: "claude-sonnet-5",
         max_tokens: 16000,
@@ -138,9 +140,9 @@ export async function POST(req: NextRequest) {
         .join("\n");
       const parsed = extractJson(text) as RecapShape | null;
       if (isComplete(parsed, msg.stop_reason)) return NextResponse.json(parsed);
-      if (attempt === 2) {
+      if (attempt === 3 || Date.now() - t0 > 38000) {
         return NextResponse.json(
-          { error: "The agent returned an incomplete answer twice. Please run it again." },
+          { error: "The agent couldn't produce a complete answer this time. Please run it again." },
           { status: 502 }
         );
       }
