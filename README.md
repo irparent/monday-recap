@@ -18,8 +18,8 @@ back-calculates a "prior week" from a rounded dashboard percentage.
 ## Try the live tool (no setup)
 
 The tool is live at [monday-recap.vercel.app](https://monday-recap.vercel.app) — it
-serves its own sample data ("Sample data to try it" in the page footer, or
-[`sample-data/`](sample-data/) in this repo holds the same files): a full realistic
+serves its own sample data via "Sample data to try it" in the page footer
+([`sample-data/`](sample-data/) in this repo holds the same files): a full realistic
 week of five CSV exports and two dashboard screenshots. Drop them all in, click once.
 
 For the stress test: leave out `instagram-daily-jul6-12.csv` (last week's Instagram
@@ -48,4 +48,4 @@ One page, one API route, one agent.
 - `lib/agent.ts` — the agent's contract (the actual product; the full prompt library, every version included, in `PROMPTS.md`)
 
 The app stays deliberately thin — a front door. The agent in the cloud turns what she
-drops in into what she sends, and the evidence contract governs every number on the way.
+drops in, into what she sends — and the evidence contract governs every number on the way.

@@ -179,8 +179,8 @@ Then update the page:
 
 ```
 The route now returns JSON. Render it as sections: the message with a copy button, an
-amber "Missing / couldn't verify" panel, then Wins, Watch, and Post ideas. Hide any
-section that comes back empty.
+amber "Missing / couldn't verify" panel, then Wins, Watch (the concerns), and Post
+ideas. Hide any section that comes back empty.
 ```
 
 **Done when:** the same inputs produce exact "7,481" instead of "7.5K"; the email gap is
