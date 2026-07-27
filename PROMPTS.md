@@ -136,3 +136,32 @@ whole output against the contract, not just the number that first went wrong.
 answer in prose instead of the JSON shape — instructions alone weren't a guarantee. The
 same schema the contract describes is now also enforced at the API level (structured
 outputs on the Messages API), so the page never depends on the model choosing to comply.
+
+## V4 — the QA hardening (shipped, in `lib/agent.ts`)
+
+A repeated-run QA pass against the deployed tool — full seven-file drops plus the
+withheld-export stress test, over a dozen runs — surfaced two leaks that only show up
+across many runs.
+
+**1. The scaffolding set a trap.** With last week's Instagram daily export withheld, the
+agent sometimes reported "up from 3,704" as last week's reach — even citing the daily
+export as the source. 3,704 is real arithmetic on the wrong thing: the sum of the four
+*posts* listed for that week in the posts export. And the trap was self-inflicted: the
+VERIFIED TOTALS block sums every CSV by week, and rule 8 said "use these totals for
+week-over-week comparisons." Fix: rules 2, 6, and 8 now distinguish per-post/per-campaign
+sums from account-level weekly exports (one never stands in for the other), and the totals
+block itself carries the same caution.
+
+**2. A complete-looking shape isn't a complete answer.** On occasional runs the model's
+thinking spiked and consumed the output budget; structured outputs kept the JSON *valid*,
+so a half-written message with empty sections could render as if it were the answer. Fix:
+a larger budget, plus a completeness gate in the route — it checks the stop reason and the
+shape's actual content, retries once quietly, and returns an honest error instead of ever
+serving a partial recap. The page also stopped rendering empty sections.
+
+Two smaller tightenings from the same pass: "missing" is now strictly for absent or
+unverifiable inputs (no reconciliation notes), and source labels are plain input names —
+never internal machinery like the totals block.
+
+The lesson this round: the failure modes you ship are often the ones your own scaffolding
+invites. Audit the scaffolding with the same suspicion as the model.
