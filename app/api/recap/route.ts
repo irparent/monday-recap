@@ -63,8 +63,20 @@ function computeTotals(files: InFile[]): string {
     }
   }
   return lines.length
-    ? `VERIFIED TOTALS - computed in code by summing the CSV rows (authoritative; never re-derive these by hand):\n${lines.join("\n")}`
+    ? `VERIFIED TOTALS - computed in code by summing the CSV rows (authoritative; never re-derive these by hand):\n${lines.join("\n")}\nEach line sums only the rows present in that one file. Totals from a per-post or per-campaign file describe those posts/campaigns only - they are not account-level weekly performance and never stand in for a missing weekly export.`
     : "";
+}
+
+// A response is renderable only when it is actually complete. Structured outputs guarantee
+// valid JSON even when the token budget runs out mid-answer - the shape survives, the
+// content doesn't. Catch that here so the page never shows a half-written recap.
+type RecapShape = { summary_message?: string; wins?: unknown[]; post_ideas?: unknown[]; missing?: unknown[] };
+function isComplete(r: RecapShape | null, stopReason: string | null): boolean {
+  if (!r || typeof r.summary_message !== "string") return false;
+  if (stopReason === "max_tokens") return false;
+  const words = r.summary_message.trim().split(/\s+/).length;
+  return words >= 60 && Array.isArray(r.wins) && r.wins.length > 0 &&
+    Array.isArray(r.post_ideas) && r.post_ideas.length > 0 && Array.isArray(r.missing);
 }
 // ------------------------------------------------------------------------------------------
 
@@ -110,24 +122,30 @@ export async function POST(req: NextRequest) {
 
   const client = new Anthropic({ apiKey: key });
   try {
-    const msg = await client.messages.create({
-      model: "claude-sonnet-5",
-      // The model thinks before it answers; the budget covers thinking + the full JSON,
-      // and low effort keeps a weekly recap fast (and inside the function's time limit).
-      max_tokens: 8000,
-      system: SYSTEM_PROMPT,
-      messages: [{ role: "user", content }],
-      output_config: { effort: "low", format: { type: "json_schema", schema: OUTPUT_SCHEMA } },
-    });
-    const text = msg.content
-      .filter((b) => b.type === "text")
-      .map((b) => ("text" in b ? b.text : ""))
-      .join("\n");
-    const parsed = extractJson(text);
-    if (!parsed) {
-      return NextResponse.json({ error: "Model returned unparseable output.", raw: text }, { status: 502 });
+    // Thinking occasionally spikes and eats the budget; the budget is sized so that never
+    // starves the answer, and an incomplete answer gets exactly one quiet retry.
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      const msg = await client.messages.create({
+        model: "claude-sonnet-5",
+        max_tokens: 16000,
+        system: SYSTEM_PROMPT,
+        messages: [{ role: "user", content }],
+        output_config: { effort: "low", format: { type: "json_schema", schema: OUTPUT_SCHEMA } },
+      });
+      const text = msg.content
+        .filter((b) => b.type === "text")
+        .map((b) => ("text" in b ? b.text : ""))
+        .join("\n");
+      const parsed = extractJson(text) as RecapShape | null;
+      if (isComplete(parsed, msg.stop_reason)) return NextResponse.json(parsed);
+      if (attempt === 2) {
+        return NextResponse.json(
+          { error: "The agent returned an incomplete answer twice. Please run it again." },
+          { status: 502 }
+        );
+      }
     }
-    return NextResponse.json(parsed);
+    return NextResponse.json({ error: "Unreachable." }, { status: 500 });
   } catch (e) {
     const detail = e instanceof Error ? e.message : "unknown error";
     return NextResponse.json({ error: `Claude call failed: ${detail}` }, { status: 502 });

@@ -107,8 +107,10 @@ export default function Home() {
       />
 
       <button className="go" onClick={generate} disabled={busy || files.length === 0}>
+        {busy && <span className="spin" aria-hidden="true" />}
         {busy ? "Reading the week…" : "Write the Monday message"}
       </button>
+      {busy && <p className="wait">Reading everything and writing the message — usually 15–25 seconds.</p>}
 
       {error && <p className="error">{error}</p>}
 
@@ -133,16 +135,18 @@ export default function Home() {
             </div>
           )}
 
-          <div className="card">
-            <h2>Wins</h2>
-            <ul>
-              {recap.wins.map((w, i) => (
-                <li key={i}>
-                  {w.text} <span className="src">{w.source}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
+          {recap.wins.length > 0 && (
+            <div className="card">
+              <h2>Wins</h2>
+              <ul>
+                {recap.wins.map((w, i) => (
+                  <li key={i}>
+                    {w.text} <span className="src">{w.source}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           {recap.concerns.length > 0 && (
             <div className="card">
@@ -157,14 +161,16 @@ export default function Home() {
             </div>
           )}
 
-          <div className="card">
-            <h2>Post ideas this week</h2>
-            <ul>
-              {recap.post_ideas.map((p, i) => (
-                <li key={i}>{p}</li>
-              ))}
-            </ul>
-          </div>
+          {recap.post_ideas.length > 0 && (
+            <div className="card">
+              <h2>Post ideas this week</h2>
+              <ul>
+                {recap.post_ideas.map((p, i) => (
+                  <li key={i}>{p}</li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       )}
 
